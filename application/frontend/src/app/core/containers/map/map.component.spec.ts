@@ -15,6 +15,7 @@ import { MockInfoWindowService, MockLayerService } from 'src/test/service-mocks'
 import * as fromConfig from '../../selectors/config.selectors';
 import * as fromMap from '../../selectors/map.selectors';
 import * as fromUI from '../../selectors/ui.selectors';
+import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors';
 import {
   DepotLayer,
   MapService,
@@ -64,6 +65,12 @@ class MockZoomHomeButtonComponent {
   @Output() zoomToHome = new EventEmitter<void>();
 }
 
+@Component({
+  selector: 'app-travel-simulator',
+  template: '',
+})
+class MockTravelSimulatorComponent {}
+
 describe('MapComponent', () => {
   let component: MapComponent;
   let fixture: ComponentFixture<MapComponent>;
@@ -81,6 +88,7 @@ describe('MapComponent', () => {
         MockMapTypeButtonComponent,
         MockMapWrapperComponent,
         MockZoomHomeButtonComponent,
+        MockTravelSimulatorComponent,
         MapComponent,
       ],
       providers: [
@@ -101,6 +109,7 @@ describe('MapComponent', () => {
             { selector: fromUI.selectPage, value: null },
             { selector: fromUI.selectHasMap, value: false },
             { selector: fromConfig.selectTimezoneOffset, value: 0 },
+            { selector: TravelSimulatorSelectors.selectTravelSimulatorVisible, value: false },
           ],
         }),
       ],

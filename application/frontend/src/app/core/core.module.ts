@@ -90,6 +90,7 @@ import { VehicleOperatorsControlBarComponent } from './containers/vehicle-operat
 import { BaseEditVehicleOperatorDialogComponent } from './components/base-edit-vehicle-operator-dialog/base-edit-vehicle-operator-dialog.component';
 import { PreSolveEditVehicleOperatorDialogComponent } from './containers/pre-solve-edit-vehicle-operator-dialog/pre-solve-edit-vehicle-operator-dialog.component';
 import { CsvHelpDialogComponent } from './containers/csv-help-dialog/csv-help-dialog.component';
+import { TravelSimulatorComponent } from './containers/travel-simulator/travel-simulator.component';
 
 export const COMPONENTS = [
   BaseDocumentationDialogComponent,
@@ -152,6 +153,7 @@ export const CONTAINERS = [
   ShipmentsControlBarComponent,
   ShipmentsKpisComponent,
   StorageApiSaveLoadDialogComponent,
+  TravelSimulatorComponent,
   UploadDialogComponent,
   ValidationResultDialogComponent,
   VehicleInfoWindowComponent,

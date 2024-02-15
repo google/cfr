@@ -12,3 +12,4 @@
 </app-select-map-items-button>
 <app-hide-map-button (hideMap)="onHideMap()"></app-hide-map-button>
 <app-zoom-home-button (zoomToHome)="onZoomToHome()" [disabled]="!bounds"></app-zoom-home-button>
+<app-travel-simulator *ngIf="travelSimulatorVisible$ | async"></app-travel-simulator>
