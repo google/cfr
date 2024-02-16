@@ -27,6 +27,7 @@ describe('TravelSimulatorComponent', () => {
             { selector: ShipmentModelSelectors.selectGlobalStartTime, value: 0 },
             { selector: ShipmentModelSelectors.selectGlobalEndTime, value: 0 },
             { selector: TravelSimulatorSelectors.selectTime, value: 0 },
+            { selector: TravelSimulatorSelectors.selectActive, value: false }
           ],
         }),
       ],

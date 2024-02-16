@@ -13,15 +13,18 @@ import { ShipmentModelActions, TravelSimulatorActions } from '../actions';
 export const travelSimulatorKey = 'travelSimulator';
 
 export interface State {
+  active: boolean;
   time: number;
 }
 
 export const initialState: State = {
+  active: false,
   time: 0,
 };
 
 export const reducer = createReducer(
   initialState,
+  on(TravelSimulatorActions.setActive, (state, { active }) => ({ ...state, active })),
   on(TravelSimulatorActions.setTime, (state, { time }) => ({ ...state, time })),
   // Keep time selection within the global range
   on(ShipmentModelActions.setGlobalStartTime, (state, { globalStartTime }) => ({
@@ -51,3 +54,5 @@ export const reducer = createReducer(
 );
 
 export const selectTime = (state: State): number => state.time;
+
+export const selectActive = (state: State): boolean => state.active;

@@ -24,7 +24,10 @@ const selectTravelSimulatorVisible = createSelector(
 
 const selectTime = createSelector(selectTravelSimulatorState, fromTravelSimulator.selectTime);
 
+const selectActive = createSelector(selectTravelSimulatorState, fromTravelSimulator.selectActive);
+
 export const TravelSimulatorSelectors = {
+  selectActive,
   selectTravelSimulatorVisible,
   selectTime,
 };

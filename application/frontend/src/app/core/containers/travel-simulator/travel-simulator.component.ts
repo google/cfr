@@ -14,8 +14,9 @@ import { Observable } from 'rxjs';
 import ShipmentModelSelectors from '../../selectors/shipment-model.selectors';
 import { map } from 'rxjs/operators';
 import { MatSliderChange } from '@angular/material/slider';
-import { setTime } from '../../actions/travel-simulator.actions';
+import { setActive, setTime } from '../../actions/travel-simulator.actions';
 import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-travel-simulator',
@@ -24,6 +25,7 @@ import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TravelSimulatorComponent implements OnInit {
+  active$: Observable<boolean>;
   start$: Observable<number>;
   end$: Observable<number>;
   time$: Observable<number>;
@@ -42,6 +44,12 @@ export class TravelSimulatorComponent implements OnInit {
     );
 
     this.time$ = this.store.pipe(select(TravelSimulatorSelectors.selectTime));
+
+    this.active$ = this.store.pipe(select(TravelSimulatorSelectors.selectActive));
+  }
+
+  onToggleActive(event: MatSlideToggleChange): void {
+    this.store.dispatch(setActive({ active: event.checked }));
   }
 
   onTimeChanged(event: MatSliderChange): void {

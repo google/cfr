@@ -10,3 +10,8 @@
 import { createAction, props } from '@ngrx/store';
 
 export const setTime = createAction('[Travel Simulator] Set time', props<{ time: number }>());
+
+export const setActive = createAction(
+  '[Travel Simulator] Set active',
+  props<{ active: boolean }>()
+);
