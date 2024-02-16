@@ -22,8 +22,11 @@ const selectTravelSimulatorVisible = createSelector(
     page === Page.RoutesChart || page === Page.RoutesMetadata || page === Page.ShipmentsMetadata
 );
 
+const selectTime = createSelector(selectTravelSimulatorState, fromTravelSimulator.selectTime);
+
 export const TravelSimulatorSelectors = {
   selectTravelSimulatorVisible,
+  selectTime,
 };
 
 export default TravelSimulatorSelectors;

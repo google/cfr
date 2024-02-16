@@ -15,6 +15,7 @@ import ShipmentModelSelectors from '../../selectors/shipment-model.selectors';
 import { map } from 'rxjs/operators';
 import { MatSliderChange } from '@angular/material/slider';
 import { setTime } from '../../actions/travel-simulator.actions';
+import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors';
 
 @Component({
   selector: 'app-travel-simulator',
@@ -25,6 +26,7 @@ import { setTime } from '../../actions/travel-simulator.actions';
 export class TravelSimulatorComponent implements OnInit {
   start$: Observable<number>;
   end$: Observable<number>;
+  time$: Observable<number>;
 
   constructor(private store: Store) {}
 
@@ -38,6 +40,8 @@ export class TravelSimulatorComponent implements OnInit {
       select(ShipmentModelSelectors.selectGlobalEndTime),
       map((value) => Long.fromValue(value).toNumber())
     );
+
+    this.time$ = this.store.pipe(select(TravelSimulatorSelectors.selectTime));
   }
 
   onTimeChanged(event: MatSliderChange): void {

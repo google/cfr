@@ -49,3 +49,5 @@ export const reducer = createReducer(
     };
   })
 );
+
+export const selectTime = (state: State): number => state.time;

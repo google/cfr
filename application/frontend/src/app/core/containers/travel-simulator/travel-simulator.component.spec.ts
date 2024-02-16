@@ -12,6 +12,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TravelSimulatorComponent } from './travel-simulator.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import ShipmentModelSelectors from '../../selectors/shipment-model.selectors';
+import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors';
 
 describe('TravelSimulatorComponent', () => {
   let component: TravelSimulatorComponent;
@@ -25,6 +26,7 @@ describe('TravelSimulatorComponent', () => {
           selectors: [
             { selector: ShipmentModelSelectors.selectGlobalStartTime, value: 0 },
             { selector: ShipmentModelSelectors.selectGlobalEndTime, value: 0 },
+            { selector: TravelSimulatorSelectors.selectTime, value: 0 },
           ],
         }),
       ],
