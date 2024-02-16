@@ -32,6 +32,7 @@ import * as ShipmentModelActions from './shipment-model.actions';
 import * as ShipmentRouteActions from './shipment-route.actions';
 import * as ShipmentsMetadataActions from './shipments-metadata.actions';
 import * as StorageApiActions from './storage-api.actions';
+import * as TravelSimulatorActions from '../actions/travel-simulator.actions';
 import * as UIActions from './ui.actions';
 import * as UndoRedoActions from './undo-redo.actions';
 import * as UploadActions from './upload.actions';
@@ -67,6 +68,7 @@ export {
   ShipmentModelActions,
   ShipmentRouteActions,
   StorageApiActions,
+  TravelSimulatorActions,
   UIActions,
   UndoRedoActions,
   UploadActions,

@@ -1,3 +1,7 @@
 <div class="container">
-  <mat-slider class="app-map-panel w-100"></mat-slider>
+  <mat-slider
+    class="app-map-panel w-100"
+    [min]="start$ | async"
+    [max]="end$ | async"
+    (input)="onTimeChanged($event)"></mat-slider>
 </div>
