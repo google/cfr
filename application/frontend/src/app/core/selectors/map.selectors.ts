@@ -21,7 +21,7 @@ import {
   toTurfLineString,
   toTurfPoint,
 } from 'src/app/util';
-import { ILatLng, Page, VisitRequest } from '../models';
+import { ILatLng, Page, ShipmentRoute, TravelCurve, Visit, VisitRequest } from '../models';
 import * as fromDepot from './depot.selectors';
 import PreSolveShipmentSelectors from './pre-solve-shipment.selectors';
 import PreSolveVehicleSelectors from './pre-solve-vehicle.selectors';
@@ -31,6 +31,11 @@ import { selectPage } from './ui.selectors';
 import * as fromVehicle from './vehicle.selectors';
 import VisitSelectors from './visit.selectors';
 import VisitRequestSelectors from './visit-request.selectors';
+import TravelSimulatorSelectors, { routeToTravelCurve } from './travel-simulator.selectors';
+import * as fromShipmentRoute from './shipment-route.selectors';
+import * as fromVisits from './visit.selectors';
+import Long from 'long';
+import { Dictionary } from '@ngrx/entity';
 
 type MapLatLng = google.maps.LatLng;
 
@@ -155,14 +160,79 @@ const getVehicleStartLocationsOnRoute = (
   return lookup;
 };
 
+const getSimulatedVehicleLocationsOnRoute = (
+  routes: ShipmentRoute[],
+  visits: Dictionary<Visit>,
+  pathFn: (routeId: number) => google.maps.LatLng[],
+  simlationTime: number
+): { [id: number]: MapLatLng } => {
+  const lookup: { [id: number]: MapLatLng } = {};
+  routes.forEach(route => {
+    const path = pathFn(route.id);
+    const travelCurve = routeToTravelCurve(route, visits);
+    if (travelCurve && travelCurve.length) {
+      const distance = timeStampToPathDistance(travelCurve, Long.fromValue(simlationTime));
+      lookup[route.id] = getPointAlongPathByDistance(path, distance);
+    } else {
+      lookup[route.id] = getVehicleStartingLocation(path, 4, []);
+    }
+  })
+  return lookup;
+};
+
+const timeStampToPathDistance = (travelCurve: TravelCurve, timeStamp: Long): number => {
+  if (!timeStamp) {
+    return NaN;
+  }
+  const travelSegmentIndex = travelCurve.findIndex(segment => {
+    return segment.startTime.lessThanOrEqual(timeStamp) && timeStamp.lessThanOrEqual(segment.endTime);
+  });
+  if (travelSegmentIndex === -1) {
+    // timestamp is before curve
+    if (timeStamp.lessThan(travelCurve[0].startTime)) {
+      return 0.0;
+    }
+    // timestamp is after curve
+    if (travelCurve[travelCurve.length - 1].endTime.lessThan(timeStamp)) {
+      return travelCurve[travelCurve.length - 1].accumulatedDistanceMeters;
+    }
+  }
+  console.log(timeStamp)
+  console.log(travelSegmentIndex)
+  console.log(travelCurve)
+  const travelSegment = travelCurve[travelSegmentIndex];
+  if (travelSegment.speed) {
+    // distance = speed * time
+    const accumulatedDistance = travelSegmentIndex > 0 ? travelCurve[travelSegmentIndex - 1].accumulatedDistanceMeters : 0.0;
+    return travelSegment && (travelSegment.speed * timeStamp.subtract(travelSegment.startTime).toNumber()) + accumulatedDistance;
+  } else {
+    return travelCurve[travelSegmentIndex].accumulatedDistanceMeters;
+  }
+};
+
 export const selectVehicleStartLocationsOnRoute = createSelector(
   ShipmentRouteSelectors.selectOverviewPolylinePaths,
   selectScenarioBoundsRadius,
   (paths, boundsRadius) => getVehicleStartLocationsOnRoute(paths, boundsRadius)
 );
 
-export const selectVehicleHeadings = createSelector(
+export const selectSimulatedVehicleLocationsOnRoute = createSelector(
+  fromShipmentRoute.selectAll,
+  fromVisits.selectEntities,
+  ShipmentRouteSelectors.selectOverviewPolylinePathFn,
+  TravelSimulatorSelectors.selectTime,
+  (routes, visits, pathFn, simulationTime) => getSimulatedVehicleLocationsOnRoute(routes, visits, pathFn, simulationTime)
+);
+
+export const selectVehicleLocationsOnRoute = createSelector(
+  TravelSimulatorSelectors.selectActive,
+  selectSimulatedVehicleLocationsOnRoute,
   selectVehicleStartLocationsOnRoute,
+  (useSimulatedLocations, simulatedLocations, locations) => useSimulatedLocations ? simulatedLocations : locations
+);
+
+export const selectVehicleHeadings = createSelector(
+  selectVehicleLocationsOnRoute,
   ShipmentRouteSelectors.selectOverviewPolylinePaths,
   (vehicleLocations, paths) => {
     const vehicleHeadings: { [id: number]: number } = {};
@@ -208,7 +278,7 @@ export const selectPreSolveEditShipmentFormBounds = createSelector(
 
 export const selectInfoWindowVehicle = createSelector(
   fromVehicle.selectClickedVehicle,
-  selectVehicleStartLocationsOnRoute,
+  selectVehicleLocationsOnRoute,
   (vehicle, startLocations) => {
     return (
       vehicle && {

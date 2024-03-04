@@ -32,6 +32,7 @@ export * from './solution';
 export * from './storage-api';
 export * from './time-range';
 export * from './timeline';
+export * from './travel-simulator';
 export * from './validation';
 export * from './vehicle-filter';
 export * from './vehicle-operator-filter';

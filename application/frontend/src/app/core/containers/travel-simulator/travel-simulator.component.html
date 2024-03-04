@@ -1,10 +1,11 @@
 <div class="container p-1 app-map-panel">
-  <mat-slide-toggle [checked]="active$ | async" (change)="onToggleActive($event)"
+  <mat-slide-toggle [checked]="active$ | async" (change)="onToggleActive($event)" color="primary"
     >Activate travel simulator</mat-slide-toggle
   >
   <div class="time-value">{{ (time$ | async) * 1000 | date: 'short' }}</div>
   <mat-slider
     class="w-100 pt-0"
+    color="primary"
     [value]="time$ | async"
     [min]="start$ | async"
     [max]="end$ | async"

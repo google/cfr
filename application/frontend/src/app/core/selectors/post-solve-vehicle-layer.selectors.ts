@@ -8,14 +8,15 @@
  */
 
 import { createSelector } from '@ngrx/store';
-import { selectVehicleHeadings, selectVehicleStartLocationsOnRoute } from './map.selectors';
+import { selectVehicleHeadings, selectVehicleLocationsOnRoute } from './map.selectors';
 import { vehicleToDeckGL } from './pre-solve-vehicle-layer.selectors';
 import RoutesChartSelectors from './routes-chart.selectors';
 import * as fromVehicle from './vehicle.selectors';
+import TravelSimulatorSelectors from './travel-simulator.selectors';
 
 export const selectFilteredVehicles = createSelector(
   fromVehicle.selectEntities,
-  selectVehicleStartLocationsOnRoute,
+  selectVehicleLocationsOnRoute,
   selectVehicleHeadings,
   RoutesChartSelectors.selectFilteredRoutesWithVisitsLookup,
   (vehicles, startLocations, headings, filteredRoutesLookup) => {
@@ -31,7 +32,7 @@ export const selectFilteredVehicles = createSelector(
 
 export const selectFilteredVehiclesSelected = createSelector(
   fromVehicle.selectEntities,
-  selectVehicleStartLocationsOnRoute,
+  selectVehicleLocationsOnRoute,
   selectVehicleHeadings,
   RoutesChartSelectors.selectFilteredRoutesSelectedWithVisitsLookup,
   RoutesChartSelectors.selectSelectedRoutesColors,
