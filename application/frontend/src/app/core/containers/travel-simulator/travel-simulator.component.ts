@@ -31,23 +31,29 @@ export class TravelSimulatorComponent implements OnInit {
   start$: Observable<number>;
   end$: Observable<number>;
   time$: Observable<number>;
+  timezoneOffset: number;
 
   formatSecondsDate = formatSecondsDate;
 
   constructor(private store: Store) {}
 
   ngOnInit(): void {
-    this.start$ = combineLatest([
-      this.store.select(ShipmentModelSelectors.selectGlobalStartTime),
-      this.store.select(selectTimezoneOffset),
-    ]).pipe(map(([value, tzOffset]) => Long.fromValue(value).toNumber() + tzOffset));
+    this.store.select(selectTimezoneOffset).pipe(
+      map(value => this.timezoneOffset = value)
+    ).subscribe();
+  
+    this.start$ = this.store.select(ShipmentModelSelectors.selectGlobalStartTime)
+      .pipe(map((value) => Long.fromValue(value).toNumber()));
 
-    this.end$ = combineLatest([
-      this.store.select(ShipmentModelSelectors.selectGlobalEndTime),
-      this.store.select(selectTimezoneOffset),
-    ]).pipe(map(([value, tzOffset]) => Long.fromValue(value).toNumber() + tzOffset));
+    this.end$ = this.store.select(ShipmentModelSelectors.selectGlobalEndTime)
+    .pipe(map((value) => Long.fromValue(value).toNumber()));
 
-    this.time$ = this.store.pipe(select(TravelSimulatorSelectors.selectTime));
+    this.time$ = combineLatest([
+      this.store.select(TravelSimulatorSelectors.selectTime),
+      this.store.select(selectTimezoneOffset)
+    ]).pipe(
+      map(([value, tzOffset]) => value + tzOffset)
+    );
 
     this.active$ = this.store.pipe(select(TravelSimulatorSelectors.selectActive));
   }
