@@ -197,9 +197,7 @@ const timeStampToPathDistance = (travelCurve: TravelCurve, timeStamp: Long): num
       return travelCurve[travelCurve.length - 1].accumulatedDistanceMeters;
     }
   }
-  console.log(timeStamp)
-  console.log(travelSegmentIndex)
-  console.log(travelCurve)
+
   const travelSegment = travelCurve[travelSegmentIndex];
   if (travelSegment.speed) {
     // distance = speed * time
