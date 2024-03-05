@@ -10,13 +10,15 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import Long from 'long';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest, forkJoin } from 'rxjs';
 import ShipmentModelSelectors from '../../selectors/shipment-model.selectors';
 import { map } from 'rxjs/operators';
 import { MatSliderChange } from '@angular/material/slider';
 import { setActive, setTime } from '../../actions/travel-simulator.actions';
 import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { selectTimezoneOffset } from '../../selectors/config.selectors';
+import { formatSecondsDate } from 'src/app/util/time-translation';
 
 @Component({
   selector: 'app-travel-simulator',
@@ -30,18 +32,20 @@ export class TravelSimulatorComponent implements OnInit {
   end$: Observable<number>;
   time$: Observable<number>;
 
+  formatSecondsDate = formatSecondsDate;
+
   constructor(private store: Store) {}
 
   ngOnInit(): void {
-    this.start$ = this.store.pipe(
-      select(ShipmentModelSelectors.selectGlobalStartTime),
-      map((value) => Long.fromValue(value).toNumber())
-    );
+    this.start$ = combineLatest([
+      this.store.select(ShipmentModelSelectors.selectGlobalStartTime),
+      this.store.select(selectTimezoneOffset),
+    ]).pipe(map(([value, tzOffset]) => Long.fromValue(value).toNumber() + tzOffset));
 
-    this.end$ = this.store.pipe(
-      select(ShipmentModelSelectors.selectGlobalEndTime),
-      map((value) => Long.fromValue(value).toNumber())
-    );
+    this.end$ = combineLatest([
+      this.store.select(ShipmentModelSelectors.selectGlobalEndTime),
+      this.store.select(selectTimezoneOffset),
+    ]).pipe(map(([value, tzOffset]) => Long.fromValue(value).toNumber() + tzOffset));
 
     this.time$ = this.store.pipe(select(TravelSimulatorSelectors.selectTime));
 

@@ -12,7 +12,6 @@ import { selectVehicleHeadings, selectVehicleLocationsOnRoute } from './map.sele
 import { vehicleToDeckGL } from './pre-solve-vehicle-layer.selectors';
 import RoutesChartSelectors from './routes-chart.selectors';
 import * as fromVehicle from './vehicle.selectors';
-import TravelSimulatorSelectors from './travel-simulator.selectors';
 
 export const selectFilteredVehicles = createSelector(
   fromVehicle.selectEntities,
