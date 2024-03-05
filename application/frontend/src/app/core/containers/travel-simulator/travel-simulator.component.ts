@@ -31,6 +31,7 @@ export class TravelSimulatorComponent implements OnInit {
   start$: Observable<number>;
   end$: Observable<number>;
   time$: Observable<number>;
+  timeDisplayed$: Observable<number>;
   timezoneOffset: number;
 
   formatSecondsDate = formatSecondsDate;
@@ -48,12 +49,14 @@ export class TravelSimulatorComponent implements OnInit {
     this.end$ = this.store.select(ShipmentModelSelectors.selectGlobalEndTime)
     .pipe(map((value) => Long.fromValue(value).toNumber()));
 
-    this.time$ = combineLatest([
+    this.timeDisplayed$ = combineLatest([
       this.store.select(TravelSimulatorSelectors.selectTime),
       this.store.select(selectTimezoneOffset)
     ]).pipe(
       map(([value, tzOffset]) => value + tzOffset)
     );
+
+    this.time$ = this.store.select(TravelSimulatorSelectors.selectTime);
 
     this.active$ = this.store.pipe(select(TravelSimulatorSelectors.selectActive));
   }

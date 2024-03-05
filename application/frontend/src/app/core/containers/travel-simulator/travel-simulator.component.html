@@ -2,7 +2,7 @@
   <mat-slide-toggle [checked]="active$ | async" (change)="onToggleActive($event)" color="primary"
     >Activate travel simulator</mat-slide-toggle
   >
-  <div class="time-value">{{ formatSecondsDate(time$ | async) }}</div>
+  <div class="time-value">{{ formatSecondsDate(timeDisplayed$ | async) }}</div>
   <mat-slider
     class="w-100 pt-0"
     color="primary"
