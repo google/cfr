@@ -10,9 +10,9 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import Long from 'long';
-import { Observable, combineLatest, forkJoin } from 'rxjs';
+import { Observable, Subject, asyncScheduler, combineLatest } from 'rxjs';
 import ShipmentModelSelectors from '../../selectors/shipment-model.selectors';
-import { map } from 'rxjs/operators';
+import { debounceTime, map, throttleTime } from 'rxjs/operators';
 import { MatSliderChange } from '@angular/material/slider';
 import { setActive, setTime } from '../../actions/travel-simulator.actions';
 import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors';
@@ -33,6 +33,7 @@ export class TravelSimulatorComponent implements OnInit {
   time$: Observable<number>;
   timeDisplayed$: Observable<number>;
   timezoneOffset: number;
+  valueChanged = new Subject<number>();
 
   formatSecondsDate = formatSecondsDate;
 
@@ -60,6 +61,13 @@ export class TravelSimulatorComponent implements OnInit {
     this.time$ = this.store.select(TravelSimulatorSelectors.selectTime);
 
     this.active$ = this.store.pipe(select(TravelSimulatorSelectors.selectActive));
+
+    this.valueChanged
+      .pipe(
+        throttleTime(100, asyncScheduler, { leading: true, trailing: true }),
+        map((time) => this.store.dispatch(setTime({ time })))
+      )
+      .subscribe();
   }
 
   onToggleActive(event: MatSlideToggleChange): void {
@@ -67,6 +75,6 @@ export class TravelSimulatorComponent implements OnInit {
   }
 
   onTimeChanged(event: MatSliderChange): void {
-    this.store.dispatch(setTime({ time: event.value }));
+    this.valueChanged.next(event.value);
   }
 }
