@@ -19,4 +19,12 @@
     (click)="!animationTimer$ || animationTimer$.closed ? onBeginAnimate() : onEndAnimate()">
     {{ !animationTimer$ || animationTimer$.closed ? 'Animate routes' : 'Stop animating routes' }}
   </button>
+  <mat-form-field appearance="fill">
+    <mat-label>Speed</mat-label>
+    <mat-select [(value)]="animationSpeedMultiple">
+      <mat-option [value]="1"> Slow </mat-option>
+      <mat-option [value]="3"> Normal </mat-option>
+      <mat-option [value]="6"> Fast </mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>

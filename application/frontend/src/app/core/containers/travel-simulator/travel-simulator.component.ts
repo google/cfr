@@ -37,6 +37,7 @@ export class TravelSimulatorComponent implements OnInit, OnDestroy {
   timezoneOffset: number;
   valueChanged = new Subject<number>();
   animationTimer$: Subscription;
+  animationSpeedMultiple = 3;
 
   formatSecondsDate = formatSecondsDate;
 
@@ -80,12 +81,12 @@ export class TravelSimulatorComponent implements OnInit, OnDestroy {
   onBeginAnimate(): void {
     this.timeSlider.disabled = true;
     this.animationTimer$ = interval(100).subscribe((_value) => {
-      const newTime = this.timeSlider.value + 60;
+      const newTime = this.timeSlider.value + 60 * this.animationSpeedMultiple;
       if (newTime > this.timeSlider.max) {
         this.onEndAnimate();
         return;
       }
-      this.valueChanged.next(this.timeSlider.value + 60);
+      this.valueChanged.next(newTime);
     });
   }
 
