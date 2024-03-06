@@ -39,22 +39,23 @@ export class TravelSimulatorComponent implements OnInit {
   constructor(private store: Store) {}
 
   ngOnInit(): void {
-    this.store.select(selectTimezoneOffset).pipe(
-      map(value => this.timezoneOffset = value)
-    ).subscribe();
-  
-    this.start$ = this.store.select(ShipmentModelSelectors.selectGlobalStartTime)
+    this.store
+      .select(selectTimezoneOffset)
+      .pipe(map((value) => (this.timezoneOffset = value)))
+      .subscribe();
+
+    this.start$ = this.store
+      .select(ShipmentModelSelectors.selectGlobalStartTime)
       .pipe(map((value) => Long.fromValue(value).toNumber()));
 
-    this.end$ = this.store.select(ShipmentModelSelectors.selectGlobalEndTime)
-    .pipe(map((value) => Long.fromValue(value).toNumber()));
+    this.end$ = this.store
+      .select(ShipmentModelSelectors.selectGlobalEndTime)
+      .pipe(map((value) => Long.fromValue(value).toNumber()));
 
     this.timeDisplayed$ = combineLatest([
       this.store.select(TravelSimulatorSelectors.selectTime),
-      this.store.select(selectTimezoneOffset)
-    ]).pipe(
-      map(([value, tzOffset]) => value + tzOffset)
-    );
+      this.store.select(selectTimezoneOffset),
+    ]).pipe(map(([value, tzOffset]) => value + tzOffset));
 
     this.time$ = this.store.select(TravelSimulatorSelectors.selectTime);
 

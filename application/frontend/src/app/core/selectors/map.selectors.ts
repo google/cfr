@@ -168,31 +168,34 @@ const getSimulatedVehicleLocationsOnRoute = (
   simulationTime: number
 ): { [id: number]: MapLatLng } => {
   const lookup: { [id: number]: MapLatLng } = {};
-  routes.forEach(route => {
+  routes.forEach((route) => {
     const path = pathFn(route.id);
     let interpolationDistance = 0;
     let totalDistance = 0;
 
     if (durationSeconds(route.vehicleStartTime).greaterThan(simulationTime)) {
       lookup[route.id] = path[0];
-    } else if (durationSeconds(route.vehicleEndTime).lessThan(simulationTime))
-    {
+    } else if (durationSeconds(route.vehicleEndTime).lessThan(simulationTime)) {
       lookup[route.id] = path[path.length - 1];
     } else {
-      route.transitions.forEach(transition => {
+      route.transitions.forEach((transition) => {
         const start = durationSeconds(transition.startTime, Long.ZERO);
         const duration = durationSeconds(transition.travelDuration, Long.ZERO);
         const end = start.add(duration);
-  
+
         if (start.lessThanOrEqual(simulationTime)) {
-          const transitionPercent = Math.min(1, Math.max(0, (simulationTime - start.toNumber()) / (end.subtract(start).toNumber())));
-          interpolationDistance = totalDistance + transition.travelDistanceMeters * transitionPercent;
+          const transitionPercent = Math.min(
+            1,
+            Math.max(0, (simulationTime - start.toNumber()) / end.subtract(start).toNumber())
+          );
+          interpolationDistance =
+            totalDistance + transition.travelDistanceMeters * transitionPercent;
         }
         totalDistance += transition.travelDistanceMeters;
       });
       lookup[route.id] = getPointAlongPathByDistance(path, interpolationDistance);
     }
-  })
+  });
   return lookup;
 };
 
@@ -207,14 +210,16 @@ export const selectSimulatedVehicleLocationsOnRoute = createSelector(
   fromVisits.selectEntities,
   ShipmentRouteSelectors.selectOverviewPolylinePathFn,
   TravelSimulatorSelectors.selectTime,
-  (routes, visits, pathFn, simulationTime) => getSimulatedVehicleLocationsOnRoute(routes, visits, pathFn, simulationTime)
+  (routes, visits, pathFn, simulationTime) =>
+    getSimulatedVehicleLocationsOnRoute(routes, visits, pathFn, simulationTime)
 );
 
 export const selectVehicleLocationsOnRoute = createSelector(
   TravelSimulatorSelectors.selectActive,
   selectSimulatedVehicleLocationsOnRoute,
   selectVehicleStartLocationsOnRoute,
-  (useSimulatedLocations, simulatedLocations, locations) => useSimulatedLocations ? simulatedLocations : locations
+  (useSimulatedLocations, simulatedLocations, locations) =>
+    useSimulatedLocations ? simulatedLocations : locations
 );
 
 export const selectVehicleHeadings = createSelector(

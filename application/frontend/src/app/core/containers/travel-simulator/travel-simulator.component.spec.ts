@@ -13,6 +13,7 @@ import { TravelSimulatorComponent } from './travel-simulator.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import ShipmentModelSelectors from '../../selectors/shipment-model.selectors';
 import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors';
+import { selectTimezoneOffset } from '../../selectors/config.selectors';
 
 describe('TravelSimulatorComponent', () => {
   let component: TravelSimulatorComponent;
@@ -28,6 +29,7 @@ describe('TravelSimulatorComponent', () => {
             { selector: ShipmentModelSelectors.selectGlobalEndTime, value: 0 },
             { selector: TravelSimulatorSelectors.selectTime, value: 0 },
             { selector: TravelSimulatorSelectors.selectActive, value: false },
+            { selector: selectTimezoneOffset, value: 0 },
           ],
         }),
       ],
