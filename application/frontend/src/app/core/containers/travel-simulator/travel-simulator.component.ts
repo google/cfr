@@ -7,13 +7,13 @@
  * https://opensource.org/licenses/MIT.
  */
 
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import Long from 'long';
-import { Observable, Subject, asyncScheduler, combineLatest } from 'rxjs';
+import { Observable, Subject, Subscription, asyncScheduler, combineLatest, interval } from 'rxjs';
 import ShipmentModelSelectors from '../../selectors/shipment-model.selectors';
-import { debounceTime, map, throttleTime } from 'rxjs/operators';
-import { MatSliderChange } from '@angular/material/slider';
+import { map, throttleTime } from 'rxjs/operators';
+import { MatSlider, MatSliderChange } from '@angular/material/slider';
 import { setActive, setTime } from '../../actions/travel-simulator.actions';
 import TravelSimulatorSelectors from '../../selectors/travel-simulator.selectors';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -26,7 +26,9 @@ import { formatSecondsDate } from 'src/app/util/time-translation';
   styleUrls: ['./travel-simulator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TravelSimulatorComponent implements OnInit {
+export class TravelSimulatorComponent implements OnInit, OnDestroy {
+  @ViewChild(MatSlider) timeSlider: MatSlider;
+
   active$: Observable<boolean>;
   start$: Observable<number>;
   end$: Observable<number>;
@@ -34,6 +36,7 @@ export class TravelSimulatorComponent implements OnInit {
   timeDisplayed$: Observable<number>;
   timezoneOffset: number;
   valueChanged = new Subject<number>();
+  animationTimer$: Subscription;
 
   formatSecondsDate = formatSecondsDate;
 
@@ -70,8 +73,33 @@ export class TravelSimulatorComponent implements OnInit {
       .subscribe();
   }
 
+  ngOnDestroy(): void {
+    this.onEndAnimate();
+  }
+
+  onBeginAnimate(): void {
+    this.timeSlider.disabled = true;
+    this.animationTimer$ = interval(100).subscribe((_value) => {
+      const newTime = this.timeSlider.value + 60;
+      if (newTime > this.timeSlider.max) {
+        this.onEndAnimate();
+        return;
+      }
+      this.valueChanged.next(this.timeSlider.value + 60);
+    });
+  }
+
+  onEndAnimate(): void {
+    this.animationTimer$?.unsubscribe();
+    this.timeSlider.disabled = false;
+  }
+
   onToggleActive(event: MatSlideToggleChange): void {
     this.store.dispatch(setActive({ active: event.checked }));
+
+    if (!event.checked) {
+      this.onEndAnimate();
+    }
   }
 
   onTimeChanged(event: MatSliderChange): void {

@@ -9,5 +9,14 @@
     [value]="time$ | async"
     [min]="start$ | async"
     [max]="end$ | async"
+    [disabled]="!(active$ | async)"
     (input)="onTimeChanged($event)"></mat-slider>
+  <button
+    type="button"
+    mat-button
+    color="primary"
+    [disabled]="!(active$ | async)"
+    (click)="!animationTimer$ || animationTimer$.closed ? onBeginAnimate() : onEndAnimate()">
+    {{ !animationTimer$ || animationTimer$.closed ? 'Animate routes' : 'Stop animating routes' }}
+  </button>
 </div>
