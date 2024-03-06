@@ -12,6 +12,7 @@ import buffer from '@turf/buffer';
 import lineIntersect from '@turf/line-intersect';
 import {
   bufferBounds,
+  durationSeconds,
   findNearestCandidatePointToTargetAlongPath,
   findPathHeadingAtPointOptimized,
   fromDispatcherLatLng,
@@ -21,7 +22,7 @@ import {
   toTurfLineString,
   toTurfPoint,
 } from 'src/app/util';
-import { ILatLng, Page, ShipmentRoute, TravelCurve, Visit, VisitRequest } from '../models';
+import { ILatLng, Page, ShipmentRoute, Visit, VisitRequest } from '../models';
 import * as fromDepot from './depot.selectors';
 import PreSolveShipmentSelectors from './pre-solve-shipment.selectors';
 import PreSolveVehicleSelectors from './pre-solve-vehicle.selectors';
@@ -31,7 +32,7 @@ import { selectPage } from './ui.selectors';
 import * as fromVehicle from './vehicle.selectors';
 import VisitSelectors from './visit.selectors';
 import VisitRequestSelectors from './visit-request.selectors';
-import TravelSimulatorSelectors, { routeToTravelCurve } from './travel-simulator.selectors';
+import TravelSimulatorSelectors from './travel-simulator.selectors';
 import * as fromShipmentRoute from './shipment-route.selectors';
 import * as fromVisits from './visit.selectors';
 import Long from 'long';
@@ -164,48 +165,35 @@ const getSimulatedVehicleLocationsOnRoute = (
   routes: ShipmentRoute[],
   visits: Dictionary<Visit>,
   pathFn: (routeId: number) => google.maps.LatLng[],
-  simlationTime: number
+  simulationTime: number
 ): { [id: number]: MapLatLng } => {
   const lookup: { [id: number]: MapLatLng } = {};
   routes.forEach(route => {
     const path = pathFn(route.id);
-    const travelCurve = routeToTravelCurve(route, visits);
-    if (travelCurve && travelCurve.length) {
-      const distance = timeStampToPathDistance(travelCurve, Long.fromValue(simlationTime));
-      lookup[route.id] = getPointAlongPathByDistance(path, distance);
+    let interpolationDistance = 0;
+    let totalDistance = 0;
+
+    if (durationSeconds(route.vehicleStartTime).greaterThan(simulationTime)) {
+      lookup[route.id] = path[0];
+    } else if (durationSeconds(route.vehicleEndTime).lessThan(simulationTime))
+    {
+      lookup[route.id] = path[path.length - 1];
     } else {
-      lookup[route.id] = getVehicleStartingLocation(path, 4, []);
+      route.transitions.forEach(transition => {
+        const start = durationSeconds(transition.startTime, Long.ZERO);
+        const duration = durationSeconds(transition.travelDuration, Long.ZERO);
+        const end = start.add(duration);
+  
+        if (start.lessThanOrEqual(simulationTime)) {
+          const transitionPercent = Math.min(1, Math.max(0, (simulationTime - start.toNumber()) / (end.subtract(start).toNumber())));
+          interpolationDistance = totalDistance + transition.travelDistanceMeters * transitionPercent;
+        }
+        totalDistance += transition.travelDistanceMeters;
+      });
+      lookup[route.id] = getPointAlongPathByDistance(path, interpolationDistance);
     }
   })
   return lookup;
-};
-
-const timeStampToPathDistance = (travelCurve: TravelCurve, timeStamp: Long): number => {
-  if (!timeStamp) {
-    return NaN;
-  }
-  const travelSegmentIndex = travelCurve.findIndex(segment => {
-    return segment.startTime.lessThanOrEqual(timeStamp) && timeStamp.lessThanOrEqual(segment.endTime);
-  });
-  if (travelSegmentIndex === -1) {
-    // timestamp is before curve
-    if (timeStamp.lessThan(travelCurve[0].startTime)) {
-      return 0.0;
-    }
-    // timestamp is after curve
-    if (travelCurve[travelCurve.length - 1].endTime.lessThan(timeStamp)) {
-      return travelCurve[travelCurve.length - 1].accumulatedDistanceMeters;
-    }
-  }
-
-  const travelSegment = travelCurve[travelSegmentIndex];
-  if (travelSegment.speed) {
-    // distance = speed * time
-    const accumulatedDistance = travelSegmentIndex > 0 ? travelCurve[travelSegmentIndex - 1].accumulatedDistanceMeters : 0.0;
-    return travelSegment && (travelSegment.speed * timeStamp.subtract(travelSegment.startTime).toNumber()) + accumulatedDistance;
-  } else {
-    return travelCurve[travelSegmentIndex].accumulatedDistanceMeters;
-  }
 };
 
 export const selectVehicleStartLocationsOnRoute = createSelector(
