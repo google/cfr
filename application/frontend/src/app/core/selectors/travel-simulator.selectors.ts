@@ -10,9 +10,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import * as fromTravelSimulator from '../reducers/travel-simulator.reducer';
 import * as fromUI from './ui.selectors';
-import { Page, ShipmentRoute, TravelCurve, Visit } from '../models';
-import { durationSeconds } from 'src/app/util';
-import { Dictionary } from '@ngrx/entity';
+import { Page } from '../models';
 
 export const selectTravelSimulatorState = createFeatureSelector<fromTravelSimulator.State>(
   fromTravelSimulator.travelSimulatorKey
