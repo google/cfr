@@ -16,6 +16,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
 import * as fromUI from 'src/app/core/selectors/ui.selectors';
 import { OptimizeToursRequest, OptimizeToursResponse } from 'src/app/core/models';
+import { selectScenarioName } from '../../selectors/dispatcher.selectors';
 
 @Component({
   selector: 'app-base-storage-api-save-load-dialog',
@@ -26,6 +27,7 @@ class MockBaseStorageApiSaveLoadDialogComponent {
   @Input() saving = false;
   @Input() scenario: OptimizeToursRequest;
   @Input() solution: OptimizeToursResponse;
+  @Input() scenarioName: string;
 }
 
 describe('StorageApiSaveLoadDialogComponent', () => {
@@ -43,6 +45,7 @@ describe('StorageApiSaveLoadDialogComponent', () => {
           selectors: [
             { selector: fromDownload.selectDownload, value: null },
             { selector: fromUI.selectPage, value: '' },
+            { selector: selectScenarioName, value: '' },
           ],
         }),
       ],

@@ -81,7 +81,7 @@ export class UploadEffects {
           })
           .afterClosed()
       ),
-      mergeMap((dialogResult: { uploadType: UploadType; content: any }) => {
+      mergeMap((dialogResult: { uploadType: UploadType; content: any; scenarioName: string }) => {
         const actions: Action[] = [UploadActions.closeDialog()];
         if (dialogResult) {
           switch (dialogResult.uploadType) {
@@ -92,7 +92,10 @@ export class UploadEffects {
               );
 
               actions.push(
-                DispatcherActions.uploadScenarioSuccess({ scenario: normalizedScenario })
+                DispatcherActions.uploadScenarioSuccess({
+                  scenario: normalizedScenario,
+                  scenarioName: dialogResult.scenarioName,
+                })
               );
               break;
             }
@@ -106,7 +109,10 @@ export class UploadEffects {
               const requestedVehicleIds = vehicles.filter((v) => !v.ignore).map((v) => v.id);
 
               actions.push(
-                DispatcherActions.uploadScenarioSuccess({ scenario: normalizedScenario })
+                DispatcherActions.uploadScenarioSuccess({
+                  scenario: normalizedScenario,
+                  scenarioName: dialogResult.scenarioName,
+                })
               );
               actions.push(
                 DispatcherApiActions.applySolution({

@@ -1,13 +1,13 @@
 :host {
   display: flex;
-  margin: 1rem;
+  margin: 0.75rem;
 }
 
 .branding,
 .branding:hover {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: normal;
   position: relative;
   top: 2px;
   margin: 0;

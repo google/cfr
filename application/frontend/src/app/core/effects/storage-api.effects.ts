@@ -29,7 +29,11 @@ export class StorageApiEffects {
         return dialogRef.afterClosed();
       }),
       mergeMap(
-        (dialogResult: { scenario: IOptimizeToursRequest; solution?: IOptimizeToursResponse }) => {
+        (dialogResult: {
+          scenario: IOptimizeToursRequest;
+          solution?: IOptimizeToursResponse;
+          scenarioName: string;
+        }) => {
           if (!dialogResult) {
             return EMPTY;
           }
@@ -38,7 +42,10 @@ export class StorageApiEffects {
           const { shipments, vehicles, normalizedScenario } =
             this.normalizationService.normalizeScenario(scenario, requestTime);
           const actions: Action[] = [
-            DispatcherActions.uploadScenarioSuccess({ scenario: normalizedScenario }),
+            DispatcherActions.uploadScenarioSuccess({
+              scenario: normalizedScenario,
+              scenarioName: dialogResult.scenarioName,
+            }),
           ];
           if (solution) {
             const requestedShipmentIds = shipments.filter((s) => !s.ignore).map((s) => s.id);

@@ -76,6 +76,8 @@ export class UploadDialogComponent {
   zipMissingScenario: boolean;
   zipMissingSolution: boolean;
 
+  selectedFilename: string;
+
   resolvingPlaceIds = false;
   placeIdProgress = 0;
   placeIdError: string;
@@ -123,6 +125,7 @@ export class UploadDialogComponent {
     this.dialogRef.close({
       uploadType: this.scenarioSolutionPair ? UploadType.ScenarioSolutionPair : UploadType.Scenario,
       content: this.scenarioSolutionPair ? this.scenarioSolutionPair : this.scenario,
+      scenarioName: this.selectedFilename,
     });
   }
 
@@ -149,6 +152,8 @@ export class UploadDialogComponent {
     if (!file) {
       return;
     }
+
+    this.selectedFilename = file.name.replace(/\.[^/.]+$/, '');
 
     this.validatingUpload = true;
 

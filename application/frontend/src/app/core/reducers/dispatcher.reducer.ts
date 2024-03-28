@@ -11,6 +11,8 @@ import { createReducer, on } from '@ngrx/store';
 import { DispatcherActions } from '../actions';
 import { IOptimizeToursResponse, Scenario, Solution } from '../models';
 
+const defaultScenarioName = 'Untitled scenario';
+
 export const dispatcherFeatureKey = 'dispatcher';
 
 export interface State {
@@ -24,6 +26,8 @@ export interface State {
   batchTime?: number;
   /** Time the current solution was received */
   timeOfResponse?: number;
+  //* User-friendly name of the scenario /
+  scenarioName?: string;
 }
 
 export const initialState: State = {
@@ -31,6 +35,7 @@ export const initialState: State = {
   solution: null,
   solutionTime: null,
   batchTime: null,
+  scenarioName: defaultScenarioName,
 };
 
 export const reducer = createReducer(
@@ -42,11 +47,16 @@ export const reducer = createReducer(
     timeOfResponse: elapsedSolution.timeOfResponse,
     batchTime: elapsedSolution.batchTime,
   })),
-  on(DispatcherActions.uploadScenarioSuccess, (state, { scenario }) => ({
+  on(DispatcherActions.uploadScenarioSuccess, (state, { scenario, scenarioName }) => ({
     ...initialState,
     scenario,
+    scenarioName: scenarioName ?? defaultScenarioName,
   })),
-  on(DispatcherActions.clearSolution, (state, _) => ({ ...initialState, scenario: state.scenario }))
+  on(DispatcherActions.clearSolution, (state, _) => ({
+    ...initialState,
+    scenario: state.scenario,
+  })),
+  on(DispatcherActions.saveScenarioName, (state, { scenarioName }) => ({ ...state, scenarioName }))
 );
 
 export const selectScenario = (state: State): Scenario => state.scenario;
@@ -58,3 +68,5 @@ export const selectSolutionTime = (state: State): number => state.solutionTime;
 export const selectTimeOfResponse = (state: State): number => state.timeOfResponse;
 
 export const selectBatchTime = (state: State): number => state.batchTime;
+
+export const selectScenarioName = (state: State): string => state.scenarioName;

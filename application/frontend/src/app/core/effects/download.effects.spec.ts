@@ -21,6 +21,7 @@ import { FileService, MessageService } from '../services';
 import { DownloadEffects } from './download.effects';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as fromUI from '../selectors/ui.selectors';
+import { selectScenarioName } from '../selectors/dispatcher.selectors';
 
 describe('DownloadEffects', () => {
   let actions$: Observable<any>;
@@ -53,6 +54,7 @@ describe('DownloadEffects', () => {
           selectors: [
             { selector: fromDownload.selectDownload, value: null },
             { selector: fromUI.selectModal, value: null },
+            { selector: selectScenarioName, value: '' },
           ],
         }),
         provideMockActions(() => actions$),
@@ -75,7 +77,25 @@ describe('DownloadEffects', () => {
         scenario: {},
         solution: { routes: [] },
       });
-      const name = jasmine.stringMatching(/^dispatcher_\d{14}$/);
+      const name = jasmine.stringMatching(/^gmpro_\d{14}$/);
+      const blob = {};
+      (fileService.zip as jasmine.Spy).and.callFake(() => of(blob));
+      (fileService.download as jasmine.Spy).and.callFake(() => null);
+      actions$ = hot('-a---', { a: download() });
+
+      const expected = hot('-b---', { b: downloadSuccess({ name, blob } as any) });
+      expect(effects.startDownload$).toBeObservable(expected);
+      expect(fileService.zip).toHaveBeenCalledTimes(1);
+      expect(fileService.download).toHaveBeenCalledTimes(1);
+    });
+
+    it('should dispatch success with scenario, solution, and custom name', () => {
+      store.overrideSelector(fromDownload.selectDownload, {
+        scenario: {},
+        solution: { routes: [] },
+      });
+      store.overrideSelector(selectScenarioName, 'custom scenario');
+      const name = jasmine.stringMatching('custom scenario');
       const blob = {};
       (fileService.zip as jasmine.Spy).and.callFake(() => of(blob));
       (fileService.download as jasmine.Spy).and.callFake(() => null);
@@ -89,7 +109,22 @@ describe('DownloadEffects', () => {
 
     it('should dispatch success without solution', () => {
       store.overrideSelector(fromDownload.selectDownload, { scenario: {} });
-      const name = jasmine.stringMatching(/^dispatcher_\d{14}$/);
+      const name = jasmine.stringMatching(/^gmpro_\d{14}$/);
+      const blob = {};
+      (fileService.zip as jasmine.Spy).and.callFake(() => of(blob));
+      (fileService.download as jasmine.Spy).and.callFake(() => null);
+      actions$ = hot('-a---', { a: download() });
+
+      const expected = hot('-b---', { b: downloadSuccess({ name, blob } as any) });
+      expect(effects.startDownload$).toBeObservable(expected);
+      expect(fileService.zip).toHaveBeenCalledTimes(1);
+      expect(fileService.download).toHaveBeenCalledTimes(1);
+    });
+
+    it('should dispatch success without solution and custom name', () => {
+      store.overrideSelector(fromDownload.selectDownload, { scenario: {} });
+      store.overrideSelector(selectScenarioName, 'custom scenario');
+      const name = jasmine.stringMatching('custom scenario');
       const blob = {};
       (fileService.zip as jasmine.Spy).and.callFake(() => of(blob));
       (fileService.download as jasmine.Spy).and.callFake(() => null);

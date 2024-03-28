@@ -1,0 +1,39 @@
+@import '../../../../styles/variables.scss';
+
+.resizable-input-container {
+  display: inline-block;
+  position: relative;
+  max-width: 50vw;
+  min-width: 10em;
+  min-height: 3em;
+}
+
+.resize-text {
+  display: inline-block;
+  visibility: hidden;
+  white-space: pre;
+  padding: 0.25em 0.5em;
+}
+
+.scenario-input {
+  padding-left: 0.25em;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-width: 2px;
+  border-style: inset;
+  border-color: transparent;
+  border-radius: 4px;
+  border-style: solid;
+}
+
+.scenario-input:hover {
+  border-color: rgb(118, 118, 118);
+}
+
+.scenario-input:focus,
+.scenario-input:focus-visible {
+  border-color: $primary;
+}

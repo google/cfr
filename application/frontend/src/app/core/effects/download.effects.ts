@@ -29,7 +29,7 @@ import {
   exhaustMap,
   mergeMap,
 } from 'rxjs/operators';
-import { of, defer, throwError } from 'rxjs';
+import { of, defer, throwError, zip } from 'rxjs';
 import {
   CsvData,
   CSV_COLUMN_ORDER,
@@ -56,6 +56,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DownloadPdfDialogComponent } from '../containers/download-pdf-dialog/download-pdf-dialog.component';
 import protobuf from 'protobufjs';
 import { ExtendedConversionOptions } from 'src/app/util/canonical-protobuf';
+import { selectScenarioName } from '../selectors/dispatcher.selectors';
 
 @Injectable()
 export class DownloadEffects {
@@ -66,8 +67,13 @@ export class DownloadEffects {
       filter(
         (modal) => modal === Modal.DownloadPDF && !this.dialog.getDialogById(Modal.DownloadPDF)
       ),
-      switchMap(() => this.store.select(fromDownload.selectDownload).pipe(first())),
-      exhaustMap((data) => {
+      switchMap(() =>
+        zip(
+          this.store.select(fromDownload.selectDownload).pipe(first()),
+          this.store.select(selectScenarioName).pipe(first())
+        )
+      ),
+      exhaustMap(([data, scenarioName]) => {
         const csvData = this.getCsvDataForSolution(data, false);
         const dialog = this.dialog.open(DownloadPdfDialogComponent, {
           id: Modal.DownloadPDF,
@@ -76,6 +82,7 @@ export class DownloadEffects {
           disableClose: true,
         });
         dialog.componentInstance.csvData = this.csvDataToLabeledCsvData(csvData, true);
+        dialog.componentInstance.scenarioName = scenarioName;
         return dialog.afterClosed();
       }),
       mergeMap((_) => {
@@ -105,12 +112,16 @@ export class DownloadEffects {
             )
             .map((key: string) => this.getColumnLabel(key));
 
-          return of(unparse({ fields: csvColumns, data: labeledCsvData }));
+          return zip(
+            of(unparse({ fields: csvColumns, data: labeledCsvData })),
+            this.store.select(selectScenarioName).pipe(first())
+          );
         }).pipe(
-          map((csvData) => {
+          map(([csvData, scenarioName]) => {
             const blob = new Blob([csvData], { type: 'text/csv' });
-            const name =
-              'routes_' + formatDate(new Date(), 'yyyyMMddHHmmss', this.locale, 'UTC') + '.csv';
+            const name = scenarioName.length
+              ? scenarioName
+              : 'routes_' + formatDate(new Date(), 'yyyyMMddHHmmss', this.locale, 'UTC') + '.csv';
             this.fileService.download(name, [csvData], 'text/csv');
             return downloadSuccess({ name, blob });
           }),
@@ -152,10 +163,13 @@ export class DownloadEffects {
           } as ExtendedConversionOptions;
           return of(files);
         }).pipe(
-          switchMap((files) => this.fileService.zip(files)),
-          map((blob) => {
-            const name =
-              'dispatcher_' + formatDate(new Date(), 'yyyyMMddHHmmss', this.locale, 'UTC');
+          switchMap((files) =>
+            zip(this.fileService.zip(files), this.store.select(selectScenarioName).pipe(first()))
+          ),
+          map(([blob, scenarioName]) => {
+            const name = scenarioName.length
+              ? scenarioName
+              : 'gmpro_' + formatDate(new Date(), 'yyyyMMddHHmmss', this.locale, 'UTC');
             this.fileService.download(name, [blob], 'application/zip');
             return downloadSuccess({ name, blob });
           }),

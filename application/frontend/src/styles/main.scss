@@ -887,7 +887,8 @@ app-bulk-edit-unset {
   font-weight: 500 !important;
 }
 
-.blue-svg-icon mat-icon svg path {
+.blue-svg-icon mat-icon svg path,
+.blue-svg-icon svg g path {
   fill: $blue;
 }
 

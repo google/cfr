@@ -19,6 +19,7 @@ import {
   EventEmitter,
   OnChanges,
   OnDestroy,
+  SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -45,10 +46,15 @@ export class BaseStorageApiSaveLoadDialogComponent implements OnChanges, OnDestr
   @Input() saving = false;
   @Input() scenario: OptimizeToursRequest;
   @Input() solution: OptimizeToursResponse;
-  @Output() loadScenario = new EventEmitter<Scenario>();
+  @Input() scenarioName: string;
+  @Output() loadScenario = new EventEmitter<{
+    scenario: Scenario;
+    scenarioName: string;
+  }>();
   @Output() loadSolution = new EventEmitter<{
     scenario: Scenario;
     solution: Solution;
+    scenarioName: string;
   }>();
 
   closed = new Subject<void>();
@@ -84,10 +90,14 @@ export class BaseStorageApiSaveLoadDialogComponent implements OnChanges, OnDestr
     this.search();
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
     if (this.onSolutionPage) {
       this.selectedTab = 1;
       this.changeTab(1);
+    }
+
+    if (changes.scenarioName) {
+      this.filename = this.scenarioName;
     }
   }
 
@@ -264,6 +274,7 @@ export class BaseStorageApiSaveLoadDialogComponent implements OnChanges, OnDestr
     this.loadSolution.emit({
       scenario: result.scenario,
       solution: result.solution,
+      scenarioName: result.name.replace(/\.[^/.]+$/, ''),
     });
   }
 
@@ -272,7 +283,10 @@ export class BaseStorageApiSaveLoadDialogComponent implements OnChanges, OnDestr
       this.validationError();
       return;
     }
-    this.loadScenario.emit(result.fileContent);
+    this.loadScenario.emit({
+      scenario: result.fileContent,
+      scenarioName: result.name.replace(/\.[^/.]+$/, ''),
+    });
   }
 
   confirmDelete(selection: SearchResult): void {

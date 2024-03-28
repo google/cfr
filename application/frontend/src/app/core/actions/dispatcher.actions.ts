@@ -22,7 +22,7 @@ import {
 
 export const uploadScenarioSuccess = createAction(
   '[Dispatcher] Upload Scenario Success',
-  props<{ scenario: Scenario }>()
+  props<{ scenario: Scenario; scenarioName?: string }>()
 );
 
 export const loadScenario = createAction(
@@ -58,3 +58,8 @@ export const initializeRangeOffset = createAction(
 );
 
 export const clearSolution = createAction('[Dispatcher] Clear Solution');
+
+export const saveScenarioName = createAction(
+  '[Dispatcher] Save Scenario Name',
+  props<{ scenarioName: string }>()
+);

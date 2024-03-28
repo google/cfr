@@ -1,9 +1,12 @@
-<app-side-bar *ngIf="started$ | async"> </app-side-bar>
-<app-body
-  [page]="page$ | async"
-  [hasMap]="hasMap$ | async"
-  [loading]="loading$ | async"
-  [splitSizes]="splitSizes$ | async"
-  (splitSizesChange)="onSplitSizesChange($event)">
-</app-body>
+<app-top-bar *ngIf="started$ | async"> </app-top-bar>
+<div class="core-content">
+  <app-side-bar *ngIf="started$ | async"> </app-side-bar>
+  <app-body
+    [page]="page$ | async"
+    [hasMap]="hasMap$ | async"
+    [loading]="loading$ | async"
+    [splitSizes]="splitSizes$ | async"
+    (splitSizesChange)="onSplitSizesChange($event)">
+  </app-body>
+</div>
 <app-shared-defs></app-shared-defs>

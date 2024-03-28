@@ -67,6 +67,8 @@ export class DownloadPdfDialogComponent implements OnInit, OnDestroy {
   renderedMaps: any[] = [];
   report: Blob;
 
+  scenarioName: string;
+
   csvData: Partial<CsvData>[] = [];
   routes: DeckGLRoute[];
   vehicles: Vehicle[];
@@ -207,7 +209,8 @@ export class DownloadPdfDialogComponent implements OnInit, OnDestroy {
   }
 
   downloadReport(): void {
-    this.fileService.download('routes.pdf', [this.report], 'application/pdf');
+    const filename = this.scenarioName.length ? this.scenarioName : 'routes';
+    this.fileService.download(`${filename}.pdf`, [this.report], 'application/pdf');
   }
 
   cancel(): void {

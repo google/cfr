@@ -44,3 +44,8 @@ export const selectTotalCost = createSelector(
 );
 
 export const selectRoutes = createSelector(selectSolution, (solution) => solution?.routes || []);
+
+export const selectScenarioName = createSelector(
+  selectDispatcherState,
+  fromDispatcher.selectScenarioName
+);
